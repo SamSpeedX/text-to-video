@@ -1,0 +1,17 @@
+{
+    "name": "taxt-to-video",
+    "autoload": {
+        "psr-4": {
+            "TaxtToVideo\\": "/"
+        }
+    },
+    "authors": [
+        {
+            "name": "SAM OCHU",
+            "email": "samochuu@gmail.com"
+        }
+    ],
+    "require": {
+        "vlucas/phpdotenv": "^5.6"
+    }
+}
