@@ -50,7 +50,6 @@ class CopilotVideoGenerator
 // Usage example:
 
 // Replace with your Copilot API key and endpoint
-$apiKey = "f8d093fcfa4a497eb07675e9f579c978.5ba96f973057da63";
 $endpoint = "https://api.copilot.com"; // Example endpoint
 
 // Initialize the generator
