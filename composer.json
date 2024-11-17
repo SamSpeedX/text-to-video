@@ -2,7 +2,7 @@
     "name": "taxt-to-video",
     "autoload": {
         "psr-4": {
-            "TaxtToVideo\\": "/"
+            "Simon\\": "/"
         }
     },
     "authors": [

@@ -1,4 +1,5 @@
 <?php
+namespace Simon\controller;
 
 class CopilotVideoGenerator
 {

@@ -1,15 +1,23 @@
 <?php
 session_start();
-// Replace with your Copilot API key and endpoint
-$endpoint = "https://api.copilot.com"; // Example endpoint
+require_once __DIR__."../vendor/autoload.php";
 
-// Initialize the generator
+use Simon\controller\CopilotVideoGenerator;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  
+
+
+$endpoint = env('ENDPOINT');
+$apiKey = env('API_KEY');
+
+
 $videoGenerator = new CopilotVideoGenerator($apiKey, $endpoint);
 
-// Define the parameters for video generation
+
 $params = [
   "template_id" => "1",
-  "text" => "Generate a three seconds video about africa chikens",
+  "text" => "{$prompt} generate video as professional",
   //'audio_url' => 'URL_TO_AUDIO_FILE',
   // Other parameters Copilot requires...
 ];
@@ -19,7 +27,8 @@ $result = $videoGenerator->generateVideo($params);
 
 // Output the result
 header("Content-Type: application/json");
+$prompt = json_decode(file_get_contents('php://input'), true);
 echo json_encode($result);
+}
+?>
 
-?>
-?>
