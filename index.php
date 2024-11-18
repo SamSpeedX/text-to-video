@@ -19,7 +19,10 @@ session_start();
 
       <button type="submit" onsubmit="submit()">Generate video</button>
     </from>
-    <div class="result" id="result"></div>
+    <div class="result" id="response1"></div>
+    <div class="result" id="response2"></div>
+    <div class="result" id="response3"></div>
+    
     <script src="assets/application/sam.js"></script>
   </body>
 </html>
