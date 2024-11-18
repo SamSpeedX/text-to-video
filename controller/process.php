@@ -4,7 +4,9 @@ header("Content-Type: application/json");
 
 require_once __DIR__."../vendor/autoload.php";
 
+use Simon\conntroller\PictoryAPI;
 use Simon\controller\CopilotVideoGenerator;
+use Simon\controller\SynthesiaAPI;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -19,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $params = [
       "template_id" => env('COPILOT_TEMPLATE'),
-      "text" => "{$this->text} generate video as professional",
+      "text" => "{$text} generate video as professional",
       //'audio_url' => 'URL_TO_AUDIO_FILE',
       // Other parameters Copilot requires...
     ];
@@ -27,12 +29,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Generate video
     $copilot_result = $videoGenerator->generateVideo($params);
     
-    
-    function synthesia($text, $tittle)
+    $synthesia_key = env("SYNTHESIA_KEY");
+    function synthesia($text, $tittle, $synthesia_key)
      {
       try {
         $apiKey = env('SYNTHESIA_API');
-        $synthesia = new SynthesiaAPI($apiKey);
+        $synthesia = new SynthesiaAPI($synthesia_key);
     
         // Create a video
         $templateId = env('SYNTHESIA_TEMPLATE');
@@ -46,7 +48,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($createResponse) {
             return "Video creation started. Video ID: " . $createResponse['id'] . PHP_EOL;
     
-            // Get video status
             $videoId = $createResponse['id'];
             $statusResponse = $synthesia->getVideoStatus($videoId);
     
@@ -60,17 +61,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } catch (Exception $e) {
         return "Exception: " . $e->getMessage() . PHP_EOL;
-    }}
+    }
       
     }
     
-    function prictory($text,$tittle) 
+    $prictory_key = env("PRICTOR_KEY");
+    function prictory($text, $tittle, $prictory_key) 
     {
       try {
-        // Initialize the API
-        $api = new PictoryAPI("https://api.pictory.ai/v1/text-to-video", env('PRICTORY_API');
+        $api = new PictoryAPI("https://api.pictory.ai/v1/text-to-video", $prictory_key);
     
-        // Generate a video
         $response = $api->generateVideo(
             $tittle,
             $text
@@ -90,8 +90,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       
     }
     
-    $synthesia_result = synthesia();
-    $prictory_response = prictory();
+    $synthesia_result = synthesia($text, $tittle, $synthesia_key);
+    $prictory_response = prictory($text, $tittle, $prictory_key);
     
     $response = [
       "copilot" => $copilot_result,
