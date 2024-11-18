@@ -8,10 +8,11 @@ class PictoryAPI
     private $authToken;
     private $customerId;
 
-    public function __construct($authToken, $customerId)
+    public function __construct($authToken, $customerId, $apiUrl)
     {
         $this->authToken = $authToken;
         $this->customerId = $customerId;
+        $this->apiUrl = $apiUrl;
     }
 
     public function createStoryboard($data)
