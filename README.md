@@ -1,4 +1,4 @@
-# taxt-to-video
+# text-to-video
 - Three in one API for video generator.
   
 ---
