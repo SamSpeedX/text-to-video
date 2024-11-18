@@ -1,56 +1,44 @@
 <?php
 
-namespace Simon\conntroller;
+namespace Simon\controller;
 
 class PictoryAPI
 {
-    private $apiEndpoint;
-    private $apiKey;
+    private $apiUrl;
+    private $authToken;
+    private $customerId;
 
-    public function __construct(string $apiEndpoint, string $apiKey)
+    public function __construct($authToken, $customerId)
     {
-        $this->apiEndpoint = $apiEndpoint;
-        $this->apiKey = $apiKey;
+        $this->authToken = $authToken;
+        $this->customerId = $customerId;
     }
 
-
-    public function generateVideo(string $title, string $content, string $style = "default"): array
+    public function createStoryboard($data)
     {
-        // Prepare the payload
-        $data = [
-            "script" => [
-                "title" => $title,
-                "content" => $content,
+        $curl = curl_init();
+
+        curl_setopt_array($curl, [
+            CURLOPT_URL => $this->apiUrl,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => [
+                'accept: application/json',
+                'content-type: application/json',
+                'Authorization: ' . $this->authToken,
+                'X-Pictory-User-Id: ' . $this->customerId
             ],
-            "style" => $style,
-        ];
-
-        // Initialize cURL
-        $ch = curl_init($this->apiEndpoint);
-
-        // Set cURL options
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Content-Type: application/json",
-            "Authorization: Bearer {$this->apiKey}",
+            CURLOPT_POSTFIELDS => json_encode($data),
         ]);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 
-        // Execute request
-        $response = curl_exec($ch);
+        $response = curl_exec($curl);
 
-        // Handle cURL errors
-        if (curl_errno($ch)) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            return ["error" => $error];
+        if (curl_errno($curl)) {
+            throw new Exception('cURL Error: ' . curl_error($curl));
         }
 
-        // Close cURL
-        curl_close($ch);
+        curl_close($curl);
 
-        // Decode and return the response
         return json_decode($response, true);
     }
 }
