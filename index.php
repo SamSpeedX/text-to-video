@@ -1,14 +1,23 @@
 <?php
 session_start();
 ?>
-<html>
-  <head>
-    <title>Video generator</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <tittle>Video generator</tittle>
+    <link rel="stylesheet" href="assets/css/style.css">
   </head>
   <body>
     <from>
+      <label for="head">Heading</label><br>
+      <input type="text" id="head" > <br>
+      
       <label for="text">You video idea</label> <br>
-      <input type="text" id="text">
+      <input type="text" id="text" >
+
+      <button type="submit" onsubmit="submit()">Generate video</button>
     </from>
     <div class="result" id="result"></div>
     <script src="assets/application/sam.js"></script>
