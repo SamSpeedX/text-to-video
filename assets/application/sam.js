@@ -1,6 +1,6 @@
 async function fetchData(url, kichwa, mwili) {
     try {
-        // Show loading state to user
+        
         document.getElementById('response3').innerHTML = "Generating video... Please wait.";
         document.getElementById('response1').classList.remove('show');
         document.getElementById('response2').classList.remove('show');
@@ -23,7 +23,6 @@ async function fetchData(url, kichwa, mwili) {
         displayResults(data);
     } catch (error) {
         console.error('Error fetching data:', error);
-        // Show error message to user
         document.getElementById('response3').innerHTML = "An error occurred. Please try again later.";
     }
 }
@@ -48,7 +47,6 @@ function displayResults(data) {
         document.getElementById('response2').classList.add('show');
     }
 
-    // Display prictory result
     if (data.prictory) {
         document.getElementById('response3').innerHTML = JSON.stringify(data.prictory);
         document.getElementById('response3').classList.add('show');
