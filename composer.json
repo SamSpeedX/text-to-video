@@ -1,5 +1,5 @@
 {
-    "name": "taxt-to-video",
+    "name": "texttovideo",
     "autoload": {
         "psr-4": {
             "Simon\\": "/"

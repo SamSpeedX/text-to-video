@@ -9,8 +9,14 @@ use Simon\controller\CopilotVideoGenerator;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $prompt = json_decode(file_get_contents('php://input'), true);
-public $tittle = $prompt['tittle'];
-public $text = $prompt['text'];
+$tittle = $prompt['tittle'];
+$text = $prompt['text'];
+
+
+
+
+
+
 
 $endpoint = env('COPILOT_ENDPOINT');
 $apiKey = env('COPILOT_API');
@@ -28,7 +34,8 @@ $params = [
 $copilot_result = $videoGenerator->generateVideo($params);
 
 
-public function synthesia() {
+function synthesia($text, $tittle)
+ {
   try {
     $apiKey = env('SYNTHESIA_API');
     $synthesia = new SynthesiaAPI($apiKey);
@@ -63,15 +70,16 @@ public function synthesia() {
   
 }
 
-public function prictory() {
+function prictory($text,$tittle) 
+{
   try {
     // Initialize the API
     $api = new PictoryAPI("https://api.pictory.ai/v1/text-to-video", env('PRICTORY_API');
 
     // Generate a video
     $response = $api->generateVideo(
-        $this->tittle,
-        $this->text
+        $tittle,
+        $text
     );
 
     // Handle the response
@@ -88,8 +96,8 @@ public function prictory() {
   
 }
 
-$synthesia_result = $this->synthesia();
-$prictory_response = $this->prictory();
+$synthesia_result = synthesia();
+$prictory_response = prictory();
 
 $response = [
   "copilot" => $copilot_result,
