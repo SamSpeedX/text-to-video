@@ -1,29 +1,31 @@
 <?php
-session_start();
+
+header("Content-Type: application/json");
+
 require_once __DIR__."../vendor/autoload.php";
 
 use Simon\controller\CopilotVideoGenerator;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  
 
+$prompt = json_decode(file_get_contents('php://input'), true);
+public $tittle = $prompt['tittle'];
+public $text = $prompt['text'];
 
-$endpoint = env('ENDPOINT');
-$apiKey = env('API_KEY');
-
+$endpoint = env('COPILOT_ENDPOINT');
+$apiKey = env('COPILOT_API');
 
 $videoGenerator = new CopilotVideoGenerator($apiKey, $endpoint);
 
-
 $params = [
-  "template_id" => "1",
-  "text" => "{$prompt} generate video as professional",
+  "template_id" => env('COPILOT_TEMPLATE'),
+  "text" => "{$this->text} generate video as professional",
   //'audio_url' => 'URL_TO_AUDIO_FILE',
   // Other parameters Copilot requires...
 ];
 
 // Generate video
-$result = $videoGenerator->generateVideo($params);
+$copilot_result = $videoGenerator->generateVideo($params);
 
 
 public function synthesia() {
@@ -41,29 +43,61 @@ public function synthesia() {
     $createResponse = $synthesia->createVideoFromTemplate($templateId, $templateData);
 
     if ($createResponse) {
-        echo "Video creation started. Video ID: " . $createResponse['id'] . PHP_EOL;
+        return "Video creation started. Video ID: " . $createResponse['id'] . PHP_EOL;
 
         // Get video status
         $videoId = $createResponse['id'];
         $statusResponse = $synthesia->getVideoStatus($videoId);
 
         if ($statusResponse) {
-            echo "Video Status: " . $statusResponse['status'] . PHP_EOL;
+            return "Video Status: " . $statusResponse['status'] . PHP_EOL;
         } else {
-            echo "Failed to retrieve video status." . PHP_EOL;
+            return "Failed to retrieve video status." . PHP_EOL;
         }
     } else {
-        echo "Video creation failed." . PHP_EOL;
+        return "Video creation failed." . PHP_EOL;
     }
 } catch (Exception $e) {
-    echo "Exception: " . $e->getMessage() . PHP_EOL;
+    return "Exception: " . $e->getMessage() . PHP_EOL;
 }}
   
 }
-// Output the result
-header("Content-Type: application/json");
-$prompt = json_decode(file_get_contents('php://input'), true);
-echo json_encode($result);
+
+public function prictory() {
+  try {
+    // Initialize the API
+    $api = new PictoryAPI("https://api.pictory.ai/v1/text-to-video", env('PRICTORY_API');
+
+    // Generate a video
+    $response = $api->generateVideo(
+        $this->tittle,
+        $this->text
+    );
+
+    // Handle the response
+    if (isset($response['videoUrl'])) {
+        return "Video generated successfully! Download URL: " . $response['videoUrl'] . PHP_EOL;
+    } elseif (isset($response['error'])) {
+        return "Error: " . $response['error'] . PHP_EOL;
+    } else {
+        return "Error: " . $response['message'] . PHP_EOL;
+    }
+} catch (Exception $e) {
+    return "Exception: " . $e->getMessage() . PHP_EOL;
+  }
+  
+}
+
+$synthesia_result = $this->synthesia();
+$prictory_response = $this->prictory();
+
+$response = [
+  "copilot" => $copilot_result,
+  "prictory" => $synthesia_result,
+  "synthesia" => $synthesia_result
+];
+
+echo json_encode($response);
 }
 ?>
 
