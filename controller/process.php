@@ -3,6 +3,7 @@
 use Simon\controller\KiwangoSecurity;
 use Simon\controller\PictoryAPI;
 use Simon\conf\Config;
+use Simon\controller\PictoryJob;
 
 header("Content-Type: application/json");
 
@@ -12,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $kiwango = new KiwangoSecurity();
 
     $title = $kiwango->guard($prompt['title']);
+    $description = $kiwango->guard($prompt['description']);
     $text = $kiwango->guard($prompt['text']);
     
     try {
@@ -33,17 +35,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ],
             "brandLogo" => [
                 "url" => "<YOUR_BRAND_LOGO>",
-                "verticalAlignment" => "top",
+                "verticalAlignment" => "bottom",
                 "horizontalAlignment" => "right"
             ],
-            "videoName" => "Video Name",
-            "videoDescription" => "Description Of Video",
+            "videoName" => $title,
+            "videoDescription" => $description,
             "language" => "en",
             "videoWidth" => "1080",
             "videoHeight" => "1920",
             "scenes" => [
                 [
-                    "text" => "ENTER TEXT HERE WHICH NEEDS TO BE CONVERTED TO VIDEO",
+                    "text" => $text,
                     "voiceOver" => true,
                     "splitTextOnNewLine" => true,
                     "splitTextOnPeriod" => true,
@@ -54,8 +56,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
         $response = $pictoryAPI->createStoryboard($payload);
     
-        echo json_encode(['status' => 'success', 'data' => $response]);
+        $job_id = json_encode(['data' => $response['job_id']]);
+
+        if ($job_id) {
+            
+            try {
+                $jobUrl = "https://api.pictory.ai";
+
+                $pictoryAPI = new PictoryJob($apiUrl, $authToken, $customerId);
+            
+                $jobId = $job_id;
+            
+                $response = $pictoryjob->getJobDetails($jobId);
+            
+                return $job_response;
+            } catch (Exception $e) {
+                return "Error: " . $e->getMessage();
+            }
+            
+        }
     } catch (Exception $e) {
-        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        return json_encode(['status' => 'error', 'message' => $e->getMessage()]);
     }
 }
