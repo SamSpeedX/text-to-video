@@ -3,7 +3,13 @@
   
 ---
 
-[hire me](https://wa.me/255780771110)
+[hire me](https://wa.me/255780771110) for AI Projects.
+
+---
+
+*Thanks to*:-
+
+[Barack Douglas](https://wa.me/255747041162) for Idea. 
 
 ---
 
