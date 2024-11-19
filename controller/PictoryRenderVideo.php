@@ -2,6 +2,8 @@
 
 namespace Simon\controller;
 
+use Exception;
+
 class PictoryRenderVideo
 {
     private $accessToken;
