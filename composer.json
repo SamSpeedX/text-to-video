@@ -1,6 +1,6 @@
 {
     "name": "simon/taxt-to-video",
-    "description": "Video generator",
+    "description": "AI Video generator",
     "require": {
         "vlucas/phpdotenv": "5.3.0",
         "guzzlehttp/guzzle": "^7.9"
