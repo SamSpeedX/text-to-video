@@ -79,17 +79,3 @@ class PictoryToken
         return $this->accessToken;
     }
 }
-
-// Usage Example
-try {
-    // Initialize with your credentials
-    $clientId = 'your_client_id';
-    $clientSecret = 'your_client_secret';
-    $pictoryAPI = new PictoryAPI($clientId, $clientSecret);
-
-    // Get the access token
-    $accessToken = $pictoryAPI->getAccessToken();
-    echo "Access Token: " . $accessToken;
-} catch (Exception $e) {
-    echo "Error: " . $e->getMessage();
-}
