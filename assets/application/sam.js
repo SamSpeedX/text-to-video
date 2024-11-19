@@ -67,5 +67,5 @@ function submit(event) {
         return;
     }
 
-    fetchData('https://api.textovideo.com/controller/process.php', kichwa, mwili);
+    fetchData('https://textovideo.koyeb.app/controller/process.php', kichwa, mwili);
 }
