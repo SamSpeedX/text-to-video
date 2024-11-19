@@ -1,10 +1,9 @@
 <?php
 
+use Simon\controller\PictoryRenderVideo;
+use Simon\controller\PictoryRendering;
+use Simon\controller\PictoryStoryboard;
 use Simon\controller\KiwangoSecurity;
-use Simon\controller\PictoryAPI;
-use Simon\conf\Config;
-use Simon\controller\PictoryJob;
-use Simon\controller\PictoryToken;
 
 header("Content-Type: application/json");
 
@@ -18,83 +17,112 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $text = $kiwango->guard($prompt['text']);
 
     // get access token
+   try {
+    $clientId = env('CLIENT_ID');
+    $clientSecret = env('CLIENT_SECRET');
+
+    $pictoryAuth = new PictoryAuth($clientId, $clientSecret);
+    $access = $pictoryAuth->getAccessToken();
+    $accessToken = json_encode($access, true);
+    
+   } catch (Exception $e) {
+    throw new Exception("Error Processing Request", $e->getCode(), $e);
+   }
+
+   if ($accessToken) {    
     try {
-        // Initialize with your credentials
-        $clientId = 'your_client_id';
-        $clientSecret = 'your_client_secret';
-        $pictoryAPI = new PictoryToken($clientId, $clientSecret);
+        // Access token from authentication
+        $accessToken = 'your_access_token';
     
-        $accessToken = $pictoryAPI->getAccessToken();
-        
-        if (!$accessToken) {
-            $accessToken = $pictoryAPI->getAccessToken();
-        }
-
-        // start generate video
-        try {
-            $authToken = env("PICTORY_AUTH_TOKEN");
-            $customerId = env("PRICTORY_CUSTOMER_ID");
-            $apiUrl = env("PRICTORY_ENDPOINT");
-        
-            $pictoryAPI = new PictoryAPI($authToken, $customerId, $apiUrl);
-        
-            $payload = [
-                "audio" => [
-                    "aiVoiceOver" => [
-                        "speaker" => "Jackson",
-                        "speed" => "100",
-                        "amplifyLevel" => "1"
-                    ],
-                    "autoBackgroundMusic" => true,
-                    "backGroundMusicVolume" => 0.5
-                ],
-                "brandLogo" => [
-                    "url" => "<YOUR_BRAND_LOGO>",
-                    "verticalAlignment" => "bottom",
-                    "horizontalAlignment" => "right"
-                ],
-                "videoName" => $title,
-                "videoDescription" => $description,
-                "language" => "en",
-                "videoWidth" => "1080",
-                "videoHeight" => "1920",
-                "scenes" => [
-                    [
-                        "text" => $text,
-                        "voiceOver" => true,
-                        "splitTextOnNewLine" => true,
-                        "splitTextOnPeriod" => true,
-                    ]
-                ],
-                "webhook" => "https://yourdomain.com/conntroller/webhook.php"
-            ];
-        
-            $response = $pictoryAPI->createStoryboard($payload);
-        
-            $job_id = json_encode(['data' => $response['job_id']]);
+        // Instantiate the storyboard class
+        $storyboard = new PictoryStoryboard($accessToken);
     
-            if ($job_id) {
-                
-                try {
-                    $jobUrl = "https://api.pictory.ai";
+        // Define the payload
+        $payload = [
+            "audio" => [
+                "aiVoiceOver" => [
+                    "speaker" => "Jackson",
+                    "speed" => "100",
+                    "amplifyLevel" => "1",
+                ],
+                "autoBackgroundMusic" => true,
+                "backGroundMusicVolume" => 0.5,
+            ],
+            "brandLogo" => [
+                "url" => "<YOUR_BRAND_LOGO>",
+                "verticalAlignment" => "top",
+                "horizontalAlignment" => "right",
+            ],
+            "videoName" => $title,
+            "videoDescription" => $description,
+            "language" => "en",
+            "videoWidth" => "1080",
+            "videoHeight" => "1920",
+            "scenes" => [
+                [
+                    "text" => $text,
+                    "voiceOver" => true,
+                    "splitTextOnNewLine" => true,
+                    "splitTextOnPeriod" => true,
+                ],
+            ],
+            "webhook" => "https://vediototext.com/controller/webhook.php",
+        ];
     
-                    $pictoryAPI = new PictoryJob($apiUrl, $authToken, $customerId);
-                
-                    $jobId = $job_id;
-                
-                    $response = $pictoryjob->getJobDetails($jobId);
-                
-                    return $job_response;
-                } catch (Exception $e) {
-                    return "Error: " . $e->getMessage();
-                }
-                
-            }
-        } catch (Exception $e) {
-            return json_encode(['status' => 'error', 'message' => $e->getMessage()]);
-        }
-
+        // Create the storyboard
+        $response = $storyboard->createStoryboard($payload);
+        $videoId = json_encode($response['video_id'], JSON_PRETTY_PRINT);
     } catch (Exception $e) {
         echo "Error: " . $e->getMessage();
     }
+    
+   }
+
+   if ($videoId) {    
+    try {
+    
+        // Initialize the rendering class
+        $rendering = new PictoryRendering($accessToken);
+    
+        // Start rendering
+        $response = $rendering->startRendering($videoId, $webhook);
+    
+        // Output the API response
+        $renderId = json_encode($response, JSON_PRETTY_PRINT);
+    } catch (Exception $e) {
+        echo "Error: " . $e->getMessage();
+    }
+
+
+    
+    try {
+        // Replace with your actual access token and video ID
+        // $accessToken = 'your_access_token';
+        // $videoId = 'your_video_id';
+    
+        // Optional webhook URL
+        // $webhook = 'https://your.callback.url';
+    
+        // Initialize the rendering class
+        $renderVideo = new PictoryRenderVideo($accessToken);
+    
+        // Start rendering
+        $response = $renderVideo->render($videoId, $webhook);
+    
+        // Output response
+        $renderingJobId = json_encode($response, JSON_PRETTY_PRINT);
+    } catch (Exception $e) {
+        echo "Error: " . $e->getMessage();
+    }
+
+
+    $status = $pictoryApi->getJobStatus($renderingJobId);
+    if ($status['status'] === 'completed') {
+        $downloadUrl = $status['downloadUrl']; // Get the download link
+        echo "Video rendered! Download here: $downloadUrl";
+    } elseif ($status['status'] === 'failed') {
+        echo "Rendering failed: " . $status['errorMessage'];
+    }
+    
+   }
 }
